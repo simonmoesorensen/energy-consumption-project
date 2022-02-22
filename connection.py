@@ -25,3 +25,8 @@ def get_db_engine(ssh_config: Dict, db_config: Dict):
             db=db_config["DB_NAME"]
         )
     )
+
+
+class Database:
+    def fetch_measurements(self):
+        pass
