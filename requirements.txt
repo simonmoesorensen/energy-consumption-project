@@ -1,0 +1,8 @@
+numpy
+pandas
+matplotlib
+folium
+psycopg2
+sqlalchemy
+sshtunnel
+jupyter
