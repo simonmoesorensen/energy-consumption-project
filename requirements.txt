@@ -6,3 +6,4 @@ psycopg2
 sqlalchemy
 sshtunnel
 jupyter
+scipy
