@@ -1,0 +1,75 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 1653 (0x675)
+    Signature Algorithm: sha1WithRSAEncryption
+        Issuer: C=DK, ST=DK, L=Lyngby, O=DTU-Informatics, OU=openvpn.imm.dtu.dk, CN=openvpn.imm.dtu.dk/name=openvpn.imm.dtu.dk/emailAddress=ITSupport@imm.dtu.dk
+        Validity
+            Not Before: Apr 28 07:28:31 2022 GMT
+            Not After : Sep 12 07:28:31 2049 GMT
+        Subject: C=DK, ST=DK, L=Lyngby, O=DTU-Informatics, OU=openvpn.imm.dtu.dk, CN=s174420--20220428092831/name=openvpn.imm.dtu.dk/emailAddress=ITSupport@imm.dtu.dk
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                Public-Key: (1024 bit)
+                Modulus:
+                    00:c4:50:f5:fd:56:19:7a:c0:ef:f9:3f:3f:18:07:
+                    2e:25:7f:05:cc:08:27:99:37:0d:a8:be:2f:f4:cc:
+                    28:7d:c8:9f:03:94:e6:a5:01:5f:1a:e7:44:5f:d1:
+                    5f:f5:03:ed:30:3d:47:db:04:87:9e:d4:7e:df:e8:
+                    30:18:9f:44:bb:7e:98:c5:56:87:18:eb:8e:58:83:
+                    40:c4:0d:48:06:fd:84:63:c0:a9:31:68:a1:93:8f:
+                    5a:c3:00:37:80:ec:a8:1e:a2:8c:d5:3d:1d:10:8d:
+                    9b:cf:e9:61:14:83:93:ff:fe:79:61:a4:7a:84:d2:
+                    6c:45:4a:e6:87:fe:18:eb:a5
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Basic Constraints: 
+                CA:FALSE
+            Netscape Comment: 
+                Easy-RSA Generated Certificate
+            X509v3 Subject Key Identifier: 
+                FC:7F:76:F4:4D:D8:84:77:7A:14:F0:5B:18:A3:24:DE:99:6F:7C:51
+            X509v3 Authority Key Identifier: 
+                keyid:5D:89:53:13:A0:01:9C:EA:0C:B6:74:0D:04:E3:5A:B6:59:E1:10:BF
+                DirName:/C=DK/ST=DK/L=Lyngby/O=DTU-Informatics/OU=openvpn.imm.dtu.dk/CN=openvpn.imm.dtu.dk/name=openvpn.imm.dtu.dk/emailAddress=ITSupport@imm.dtu.dk
+                serial:B2:B6:D4:E4:E3:61:07:B5
+
+            X509v3 Extended Key Usage: 
+                TLS Web Client Authentication
+            X509v3 Key Usage: 
+                Digital Signature
+    Signature Algorithm: sha1WithRSAEncryption
+         a4:c2:85:01:1d:69:ea:c4:c1:ac:5e:c1:85:0b:1b:96:99:fe:
+         41:d5:7b:18:6b:61:ef:e8:14:9c:7f:98:c5:48:60:cf:d0:39:
+         25:02:7a:46:cc:4d:8a:4b:8a:91:a5:52:e4:92:ac:05:a5:1c:
+         90:31:2d:8e:be:53:88:87:b1:b8:ff:18:a1:3e:bf:b2:49:c9:
+         da:8a:72:2f:d7:df:42:d4:56:34:01:4e:28:ae:6a:8e:2c:1e:
+         a5:57:19:93:5d:fc:fe:fd:83:3c:c6:30:da:81:54:7d:e8:ac:
+         23:06:97:6d:c4:a0:bb:67:53:58:36:77:9a:08:cd:e8:6f:93:
+         27:c7
+-----BEGIN CERTIFICATE-----
+MIIEejCCA+OgAwIBAgICBnUwDQYJKoZIhvcNAQEFBQAwgcExCzAJBgNVBAYTAkRL
+MQswCQYDVQQIEwJESzEPMA0GA1UEBxMGTHluZ2J5MRgwFgYDVQQKEw9EVFUtSW5m
+b3JtYXRpY3MxGzAZBgNVBAsTEm9wZW52cG4uaW1tLmR0dS5kazEbMBkGA1UEAxMS
+b3BlbnZwbi5pbW0uZHR1LmRrMRswGQYDVQQpExJvcGVudnBuLmltbS5kdHUuZGsx
+IzAhBgkqhkiG9w0BCQEWFElUU3VwcG9ydEBpbW0uZHR1LmRrMB4XDTIyMDQyODA3
+MjgzMVoXDTQ5MDkxMjA3MjgzMVowgcYxCzAJBgNVBAYTAkRLMQswCQYDVQQIEwJE
+SzEPMA0GA1UEBxMGTHluZ2J5MRgwFgYDVQQKEw9EVFUtSW5mb3JtYXRpY3MxGzAZ
+BgNVBAsTEm9wZW52cG4uaW1tLmR0dS5kazEgMB4GA1UEAxMXczE3NDQyMC0tMjAy
+MjA0MjgwOTI4MzExGzAZBgNVBCkTEm9wZW52cG4uaW1tLmR0dS5kazEjMCEGCSqG
+SIb3DQEJARYUSVRTdXBwb3J0QGltbS5kdHUuZGswgZ8wDQYJKoZIhvcNAQEBBQAD
+gY0AMIGJAoGBAMRQ9f1WGXrA7/k/PxgHLiV/BcwIJ5k3Dai+L/TMKH3InwOU5qUB
+XxrnRF/RX/UD7TA9R9sEh57Uft/oMBifRLt+mMVWhxjrjliDQMQNSAb9hGPAqTFo
+oZOPWsMAN4DsqB6ijNU9HRCNm8/pYRSDk//+eWGkeoTSbEVK5of+GOulAgMBAAGj
+ggF4MIIBdDAJBgNVHRMEAjAAMC0GCWCGSAGG+EIBDQQgFh5FYXN5LVJTQSBHZW5l
+cmF0ZWQgQ2VydGlmaWNhdGUwHQYDVR0OBBYEFPx/dvRN2IR3ehTwWxijJN6Zb3xR
+MIH2BgNVHSMEge4wgeuAFF2JUxOgAZzqDLZ0DQTjWrZZ4RC/oYHHpIHEMIHBMQsw
+CQYDVQQGEwJESzELMAkGA1UECBMCREsxDzANBgNVBAcTBkx5bmdieTEYMBYGA1UE
+ChMPRFRVLUluZm9ybWF0aWNzMRswGQYDVQQLExJvcGVudnBuLmltbS5kdHUuZGsx
+GzAZBgNVBAMTEm9wZW52cG4uaW1tLmR0dS5kazEbMBkGA1UEKRMSb3BlbnZwbi5p
+bW0uZHR1LmRrMSMwIQYJKoZIhvcNAQkBFhRJVFN1cHBvcnRAaW1tLmR0dS5ka4IJ
+ALK21OTjYQe1MBMGA1UdJQQMMAoGCCsGAQUFBwMCMAsGA1UdDwQEAwIHgDANBgkq
+hkiG9w0BAQUFAAOBgQCkwoUBHWnqxMGsXsGFCxuWmf5B1XsYa2Hv6BScf5jFSGDP
+0DklAnpGzE2KS4qRpVLkkqwFpRyQMS2OvlOIh7G4/xihPr+yScnainIv199C1FY0
+AU4ormqOLB6lVxmTXfz+/YM8xjDagVR96KwjBpdtxKC7Z1NYNneaCM3ob5Mnxw==
+-----END CERTIFICATE-----
