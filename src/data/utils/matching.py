@@ -13,7 +13,7 @@ import osrm
 import requests
 import json
 import os, sys
-
+from tqdm import tqdm
 
 def haversine_distance(lat1, lat2, lon1, lon2, in_meters=True):
     lon1 = radians(lon1)
@@ -41,7 +41,7 @@ def haversine_distance(lat1, lat2, lon1, lon2, in_meters=True):
 
 def compute_kpi_aran(data):
     kpi = (data['DI'] + ((data['p79.RutDepthLeft'] + data['p79.RutDepthRight']) / 2) ** 0.5) * (
-                (data['p79.IRI5'] + data['p79.IRI21']) / 2) ** 0.2
+            (data['p79.IRI5'] + data['p79.IRI21']) / 2) ** 0.2
 
     return kpi
 
@@ -370,7 +370,7 @@ def map_match(gps, host, lat_name='lat', lon_name='lon', r=50):
 
 
 def map_match_gps_data(gps_data, host, is_GM=False, lat_name='lat', lon_name='lon', out_dir='.', out_file_suff='',
-                       preload=False):
+                       preload=True):
     out_filename = '{0}/{1}.pickle'.format(out_dir, out_file_suff)
 
     if os.path.exists(out_filename) and preload:
@@ -484,9 +484,17 @@ def interpolate_trip(all_sensor_data, out_dir='.', add_sensors=[], file_suff='GM
     # gps_data['lat_start'] + (gps_data['dlat']*/gps_data['dt'])
     all_sensor_data = all_sensor_data.loc[all_sensor_data['T'].isin(np.append(add_sensors, ['track.pos', 'acc.xyz']))]
 
-    print('Interpolating')
-    out_filename_sensor = '{0}/sensor/{1}.csv'.format(out_dir, file_suff)
-    out_filename_gps = '{0}/gps/{1}.csv'.format(out_dir, file_suff)
+    out_filedir_sensor = '{0}/sensor'.format(out_dir)
+    out_filedir_gps = '{0}/sensor'.format(out_dir)
+
+    out_filename_sensor = '{0}/{1}.csv'.format(out_filedir_sensor, file_suff)
+    out_filename_gps = '{0}/{1}.csv'.format(out_filedir_gps, file_suff)
+
+    if not os.path.exists(out_filedir_sensor):
+        os.makedirs(out_filedir_sensor)
+
+    if not os.path.exists(out_filedir_gps):
+        os.makedirs(out_filedir_gps)
 
     # if os.path.exists(out_filename_sensor) and not recreate:
     #     print('Loading interpolated data from file: {0}'.format(out_filename))
@@ -518,28 +526,54 @@ def interpolate_trip(all_sensor_data, out_dir='.', add_sensors=[], file_suff='GM
     gps_data_segments['dlon'] = gps_data_segments['lon_map_end'] - gps_data_segments['lon_map_start']
 
     # Find a matching segment
-    all_sensor_data['gps_segment'] = all_sensor_data.TS_or_Distance.apply(lambda t: gps_data_segments[
-        (t > gps_data_segments.TS_or_Distance_start) & (t < gps_data_segments.TS_or_Distance_end)])
-    all_sensor_data['gps_segment'] = all_sensor_data['gps_segment'].apply(lambda df: np.NaN if df.empty else df)
-    all_sensor_data.dropna(subset=['gps_segment'], inplace=True)
-    all_sensor_data.reset_index(inplace=True, drop=True)
+    # all_sensor_data['gps_segment'] = all_sensor_data.TS_or_Distance.apply(lambda t: gps_data_segments[
+    #     (t > gps_data_segments.TS_or_Distance_start) & (t < gps_data_segments.TS_or_Distance_end)])
+    #
+    gps_data_segments['segment_id'] = np.arange(0, len(gps_data_segments), dtype=int)
+
+    print('\tMatching segments')
+    for idx, row in tqdm(gps_data_segments.iterrows()):
+        mask = (all_sensor_data.TS_or_Distance > row.TS_or_Distance_start) & (all_sensor_data.TS_or_Distance < row.TS_or_Distance_end)
+        all_sensor_data.loc[mask, 'segment_id'] = row.segment_id
+
+    # all_sensor_data['gps_segment'] = all_sensor_data['gps_segment'].apply(lambda df: np.NaN if df.empty else df)
+    # all_sensor_data.dropna(subset=['gps_segment'], inplace=True)
+    # all_sensor_data.reset_index(inplace=True, drop=True)
+    all_sensor_data = all_sensor_data.dropna(subset=['segment_id'])
 
     # Extract
-    all_sensor_data['GPS_TS_or_Distance_start'] = all_sensor_data['gps_segment'].apply(
-        lambda df: df['TS_or_Distance_start'].iloc[0])
-    all_sensor_data['GPS_lat_map_start'] = all_sensor_data['gps_segment'].apply(lambda df: df['lat_map_start'].iloc[0])
-    all_sensor_data['GPS_lon_map_start'] = all_sensor_data['gps_segment'].apply(lambda df: df['lon_map_start'].iloc[0])
-    all_sensor_data['GPS_dt'] = all_sensor_data['gps_segment'].apply(lambda df: df['dt'].iloc[0])
-    all_sensor_data['GPS_dlat'] = all_sensor_data['gps_segment'].apply(lambda df: df['dlat'].iloc[0])
-    all_sensor_data['GPS_dlon'] = all_sensor_data['gps_segment'].apply(lambda df: df['dlon'].iloc[0])
-    all_sensor_data['way_id'] = all_sensor_data['gps_segment'].apply(lambda df: df['way_id_start'].iloc[0])
-    all_sensor_data['street_name_start'] = all_sensor_data['gps_segment'].apply(
-        lambda df: df['street_name_start'].iloc[0])
-    all_sensor_data['street_name_end'] = all_sensor_data['gps_segment'].apply(lambda df: df['street_name_end'].iloc[0])
+    print('\tExtracting gps data')
+    gps_columns = ['segment_id', 'TS_or_Distance_start', 'lat_map_start', 'lon_map_start', 'dt', 'dlat', 'dlon', 'way_id_start', 'street_name_start',
+                   'street_name_end']
+
+    all_sensor_data = pd.merge(all_sensor_data, gps_data_segments[gps_columns], on='segment_id')
+
+    all_sensor_data = all_sensor_data.rename({
+        'TS_or_Distance_start': 'GPS_TS_or_Distance_start',
+        'lat_map_start': 'GPS_lat_map_start',
+        'lon_map_start': 'GPS_lon_map_start',
+        'dt': 'GPS_dt',
+        'dlat': 'GPS_dlat',
+        'dlon': 'GPS_dlon',
+        'way_id_start': 'way_id',
+    }, axis=1)
+
+    # all_sensor_data['GPS_TS_or_Distance_start'] = all_sensor_data['gps_segment'].apply(
+    #     lambda df: df['TS_or_Distance_start'].iloc[0])
+    # all_sensor_data['GPS_lat_map_start'] = all_sensor_data['gps_segment'].apply(lambda df: df['lat_map_start'].iloc[0])
+    # all_sensor_data['GPS_lon_map_start'] = all_sensor_data['gps_segment'].apply(lambda df: df['lon_map_start'].iloc[0])
+    # all_sensor_data['GPS_dt'] = all_sensor_data['gps_segment'].apply(lambda df: df['dt'].iloc[0])
+    # all_sensor_data['GPS_dlat'] = all_sensor_data['gps_segment'].apply(lambda df: df['dlat'].iloc[0])
+    # all_sensor_data['GPS_dlon'] = all_sensor_data['gps_segment'].apply(lambda df: df['dlon'].iloc[0])
+    # all_sensor_data['way_id'] = all_sensor_data['gps_segment'].apply(lambda df: df['way_id_start'].iloc[0])
+    # all_sensor_data['street_name_start'] = all_sensor_data['gps_segment'].apply(
+    #     lambda df: df['street_name_start'].iloc[0])
+    # all_sensor_data['street_name_end'] = all_sensor_data['gps_segment'].apply(lambda df: df['street_name_end'].iloc[0])
     # all_sensor_data['hint'] =  all_sensor_data['gps_segment'].apply(lambda df: df['hint_start'].iloc[0])
-    all_sensor_data.drop(columns=['gps_segment'], inplace=True, axis=1)
+    # all_sensor_data.drop(columns=['gps_segment'], inplace=True, axis=1)
 
     # Filter?
+    print('\tComputing features')
     all_sensor_data = all_sensor_data[all_sensor_data['GPS_dt'] < 5]
 
     # Compute dtx 
@@ -548,9 +582,9 @@ def interpolate_trip(all_sensor_data, out_dir='.', add_sensors=[], file_suff='GM
 
     # Compute lat and lon
     all_sensor_data['lat_int'] = all_sensor_data['GPS_lat_map_start'] + (
-                all_sensor_data['GPS_dlat'] * all_sensor_data['dtx']) / all_sensor_data['GPS_dt']
+            all_sensor_data['GPS_dlat'] * all_sensor_data['dtx']) / all_sensor_data['GPS_dt']
     all_sensor_data['lon_int'] = all_sensor_data['GPS_lon_map_start'] + (
-                all_sensor_data['GPS_dlon'] * all_sensor_data['dtx']) / all_sensor_data['GPS_dt']
+            all_sensor_data['GPS_dlon'] * all_sensor_data['dtx']) / all_sensor_data['GPS_dt']
 
     # var_data.drop(['GPS_TS_or_Distance_start', 'GPS_lat_start','GPS_lon_start', 'GPS_dt', 'GPS_dlat', 'GPS_dlon', 'dtx'],axis=1,inplace=True)
 
@@ -562,16 +596,18 @@ def interpolate_trip(all_sensor_data, out_dir='.', add_sensors=[], file_suff='GM
 
     # Extract Message
     # print('- Extracting message')
+    # all_sensor_data = pd.concat(
+    #     [all_sensor_data.drop(['Message'], axis=1), all_sensor_data['Message'].apply(pd.Series)], axis=1)
+
+    print('\tExtracting message')
     all_sensor_data = pd.concat(
-        [all_sensor_data.drop(['Message'], axis=1), all_sensor_data['Message'].apply(pd.Series)], axis=1)
+        [all_sensor_data.drop(['Message'], axis=1), pd.DataFrame(all_sensor_data['Message'].to_list())], axis=1)
     # GM_map_matched_data.drop([0,'@vid'], axis=1,inplace=True)
 
     # Save results
-    all_sensor_data.to_csv(out_filename_sensor)
     all_sensor_data.to_pickle(out_filename_sensor.replace('.csv', '.pickle'))
     print('Saved interpolation output to: {0}'.format(out_filename_sensor))
 
-    gps.to_csv(out_filename_gps)
     gps.to_pickle(out_filename_gps.replace('.csv', '.pickle'))
     print('Saved GPS recorded data to: {0}'.format(out_filename_gps))
 

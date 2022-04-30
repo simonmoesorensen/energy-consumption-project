@@ -363,12 +363,17 @@ for trip in trips_thisroute:
     map_filename = "mapmatched_gpspoints_fulltrip_{0}".format(trip)
     host = conn_data["osrm"]["host"]
 
+    mapmatched_dir = out_dir_interim + 'mapmatched'
+
+    if not os.path.exists(mapmatched_dir):
+        os.makedirs(mapmatched_dir)
+
     gps_mapmatched = map_match_gps_data(
         gps,
         host=host,
         is_GM=True,
-        out_dir=out_dir_interim + 'mapmatched/',
-        out_file_suff="_GM_{0}".format(trip),
+        out_dir=mapmatched_dir,
+        out_file_suff="GM_{0}".format(trip),
     )
 
     if gps_mapmatched is None:
@@ -594,9 +599,15 @@ for trip in trips_thisroute:
         GM_pass_full_data.reset_index(drop=True, inplace=True)
 
         # Save the pass df
+        out_passes_noint_dir = out_dir_interim + 'passes/no_interpolation'
+
+        if not os.path.exists(out_passes_noint_dir):
+            os.makedirs(out_passes_noint_dir)
+
         out_filename = "{0}/GM_trip_{1}_pass_{2}.pickle".format(
-            out_dir_interim + 'passes/no_interpolation/', trip, i
+            out_passes_noint_dir, trip, i
         )
+
         GM_pass_full_data.to_pickle(out_filename)
 
         # Interpolate the pass df
@@ -608,9 +619,13 @@ for trip in trips_thisroute:
             inter_filename = "GM_trip_{0}_pass_{1}".format(trip, i)
 
             # Interpolate
+            out_dir_interpolated = out_dir_interim + 'interpolated'
+            if not os.path.exists(out_dir_interpolated):
+                os.makedirs(out_dir_interpolated)
+
             GM_int_data, gps = interpolate_trip(
                 all_sensor_data=GM_pass_full_data,
-                out_dir=out_dir_interim + 'passes/interpolated/',
+                out_dir=out_dir_interpolated,
                 add_sensors=add_sensors,
                 file_suff=inter_filename,
                 recreate=recreate_interp,
