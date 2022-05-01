@@ -387,9 +387,8 @@ def map_match_gps_data(gps_data, host, is_GM=False, lat_name='lat', lon_name='lo
 
         gps_chunks_mm = []
         # Map Match GPS chunks
-        for i, gps_chunk in enumerate(gps_chunks):
+        for gps_chunk in tqdm(gps_chunks):
             # if i%100==0:
-            print(' === Chunk: {0}/{1} ===='.format(i, n))
             res = map_match(gps_chunk, host, lat_name, lon_name)
             if res is not None:
                 gps_chunks_mm.append(res)
@@ -485,10 +484,10 @@ def interpolate_trip(all_sensor_data, out_dir='.', add_sensors=[], file_suff='GM
     all_sensor_data = all_sensor_data.loc[all_sensor_data['T'].isin(np.append(add_sensors, ['track.pos', 'acc.xyz']))]
 
     out_filedir_sensor = '{0}/sensor'.format(out_dir)
-    out_filedir_gps = '{0}/sensor'.format(out_dir)
+    out_filedir_gps = '{0}/gps'.format(out_dir)
 
-    out_filename_sensor = '{0}/{1}.csv'.format(out_filedir_sensor, file_suff)
-    out_filename_gps = '{0}/{1}.csv'.format(out_filedir_gps, file_suff)
+    out_filename_sensor = '{0}/{1}.pickle'.format(out_filedir_sensor, file_suff)
+    out_filename_gps = '{0}/{1}.pickle'.format(out_filedir_gps, file_suff)
 
     if not os.path.exists(out_filedir_sensor):
         os.makedirs(out_filedir_sensor)
@@ -532,7 +531,7 @@ def interpolate_trip(all_sensor_data, out_dir='.', add_sensors=[], file_suff='GM
     gps_data_segments['segment_id'] = np.arange(0, len(gps_data_segments), dtype=int)
 
     print('\tMatching segments')
-    for idx, row in tqdm(gps_data_segments.iterrows()):
+    for idx, row in tqdm(gps_data_segments.iterrows(), total=len(gps_data_segments)):
         mask = (all_sensor_data.TS_or_Distance > row.TS_or_Distance_start) & (all_sensor_data.TS_or_Distance < row.TS_or_Distance_end)
         all_sensor_data.loc[mask, 'segment_id'] = row.segment_id
 
@@ -605,10 +604,10 @@ def interpolate_trip(all_sensor_data, out_dir='.', add_sensors=[], file_suff='GM
     # GM_map_matched_data.drop([0,'@vid'], axis=1,inplace=True)
 
     # Save results
-    all_sensor_data.to_pickle(out_filename_sensor.replace('.csv', '.pickle'))
+    all_sensor_data.to_pickle(out_filename_sensor)
     print('Saved interpolation output to: {0}'.format(out_filename_sensor))
 
-    gps.to_pickle(out_filename_gps.replace('.csv', '.pickle'))
+    gps.to_pickle(out_filename_gps)
     print('Saved GPS recorded data to: {0}'.format(out_filename_gps))
 
     return all_sensor_data, gps

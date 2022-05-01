@@ -599,7 +599,7 @@ for trip in trips_thisroute:
         GM_pass_full_data.reset_index(drop=True, inplace=True)
 
         # Save the pass df
-        out_passes_noint_dir = out_dir_interim + 'passes/no_interpolation'
+        out_passes_noint_dir = out_dir_interim + 'no_interpolation'
 
         if not os.path.exists(out_passes_noint_dir):
             os.makedirs(out_passes_noint_dir)

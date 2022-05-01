@@ -58,7 +58,7 @@ def get_speed_limit(df):
     # Connect coordinate set for each row in df to a route
     df['points'] = df.apply(lambda x: (x['lon_map'], x['lat_map']), axis=1)
     if len(df) == 1:
-        print("Not enough coordinates")
+        # print("Not enough coordinates")
         return 0    
     gps_route = LineString([Point(point) for point in df.points])
 
