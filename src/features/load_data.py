@@ -2,6 +2,7 @@ import glob
 import os
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 root = Path(__file__).parent.parent.parent
@@ -33,6 +34,7 @@ def rename_df(df):
         'obd.strg_acc.value': 'steering_acceleration',
         'obd.strg_ang.value': 'steering_wheel_angle_offset',
         'obd.acc_yaw.value': 'yaw_rate',
+        'obd.spd.value': 'velocity',
         'obd.ww_f_stat.value': 'front_wiper_status',
         'obd.odo.value': 'odometer',
         'obd.trac_cons.value': 'traction_instant_consumption',
@@ -51,12 +53,18 @@ def resample_df(df, sampling):
 
 
 def drop_cols(df):
-    df = df.drop(['index', 'index_diff0', '@vid', 'W', 's', 'start_hour'],
+    df = df.drop(['index',
+                  'index_diff0',
+                  '@vid',
+                  'W',
+                  's',
+                  'start_hour',
+                  'steering_wheel_angle_offset'],
                  axis=1)
     return df
 
 
-def load_trip(route, trip, pass_=None, sampling='5s'):
+def load_trip(route, trip, pass_=None, sampling='1s'):
     if pass_ is None:
         trip_pass = f"trip_{trip}_*.pickle"
     else:
@@ -72,11 +80,40 @@ def load_trip(route, trip, pass_=None, sampling='5s'):
         df = rename_df(df)
         df = drop_cols(df)
 
+        df = df[~df.isna().any(axis=1)]
+        df['pass'] = i
+        df['trip'] = trip
+        df['route'] = route
         passes[i] = df
 
     return passes
 
 
+def load_trips(routes, trips='all', sampling='1s'):
+    assert type(routes) == list
+
+    if trips != 'all':
+        assert type(trips) == set or type(trips) == list
+        trips = map(int, trips)
+        trips = set(trips)
+
+    all_df = []
+    for route in routes:
+        route_trips = set([int(path.split('_')[2]) for path in glob.glob(os.path.join(data_dir, route, '*.pickle'))])
+
+        if trips == 'all':
+            trips_iter = route_trips
+        else:
+            trips_iter = trips.intersection(route_trips)
+
+        for trip in trips_iter:
+            dfs = load_trip(route, trip, sampling=sampling)
+            df = pd.concat(dfs.values())
+            all_df.append(df)
+
+    return pd.concat(all_df)
+
+
 if __name__ == '__main__':
-    df = load_trip('M3_VH', '7448', '0', sampling='1s')
-    print(df[0])
+    df = load_trips(['M3_VH', 'CPH6_VH'], trips=[13201, 7448], sampling='1s')
+    print(df)
