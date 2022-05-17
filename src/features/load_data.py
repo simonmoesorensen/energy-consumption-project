@@ -15,7 +15,8 @@ def adjust_offsets(df):
         'obd.strg_acc.value': 32768,
         'obd.strg_ang.value': 32768,
         'obd.acc_yaw.value': 2047,
-        'obd.trac_cons.value': 80,
+        'obd.trac_cons.value': 160,
+        'obd.xyz.z': 0.97,
     }
 
     for col in df:
@@ -45,10 +46,9 @@ def rename_df(df):
 
 
 def resample_df(df, sampling):
-    df = df.groupby('street_name_start').resample(sampling).mean()
+    df = df.groupby('street_name_start').resample(sampling).median()
     df = df.reset_index()
-    df = df.set_index('TS_or_Distance')
-    df = df.sort_index()
+    df = df.set_index(['TS_or_Distance'])
     return df
 
 
@@ -64,6 +64,16 @@ def drop_cols(df):
     return df
 
 
+def remove_outliers(df, columns, low_q=0.001, hi_q=0.999):
+    for col in columns:
+        q_low = df[col].quantile(low_q)
+        q_hi = df[col].quantile(hi_q)
+
+        df = df[(df[col] <= q_hi) & (df[col] >= q_low)]
+
+    return df
+
+
 def load_trip(route, trip, pass_=None, sampling='1s'):
     if pass_ is None:
         trip_pass = f"trip_{trip}_*.pickle"
@@ -72,18 +82,23 @@ def load_trip(route, trip, pass_=None, sampling='1s'):
 
     passes = dict()
     for i, file in enumerate(glob.glob(os.path.join(data_dir, route, trip_pass))):
-        df = pd.read_pickle(file, )
-        df = df.set_index('TS_or_Distance')
+        df = pd.read_pickle(file)
+
+        df['pass'] = i
+        df['trip'] = trip
+        df['route'] = route
+
+        df = df.set_index(['TS_or_Distance'])
 
         df = resample_df(df, sampling)
+
         df = adjust_offsets(df)
         df = rename_df(df)
         df = drop_cols(df)
 
-        df = df[~df.isna().any(axis=1)]
-        df['pass'] = i
-        df['trip'] = trip
-        df['route'] = route
+        df = df[~df.isna().all(axis=1)]
+
+        df = df.sort_index()
         passes[i] = df
 
     return passes
