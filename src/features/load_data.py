@@ -98,7 +98,6 @@ def load_trip(route, trip, pass_=None, sampling='1s'):
 
         df = df[~df.isna().all(axis=1)]
 
-        df = df.sort_index()
         passes[i] = df
 
     return passes
@@ -126,7 +125,9 @@ def load_trips(routes, trips='all', sampling='1s'):
             df = pd.concat(dfs.values())
             all_df.append(df)
 
-    return pd.concat(all_df)
+    out_df = pd.concat(all_df)
+    out_df = out_df.sort_index()
+    return out_df
 
 
 if __name__ == '__main__':
