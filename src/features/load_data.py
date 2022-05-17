@@ -46,7 +46,7 @@ def rename_df(df):
 
 
 def resample_df(df, sampling):
-    df = df.groupby('street_name_start').resample(sampling).median()
+    df = df.resample(sampling).median()
     df = df.reset_index()
     df = df.set_index(['TS_or_Distance'])
     return df

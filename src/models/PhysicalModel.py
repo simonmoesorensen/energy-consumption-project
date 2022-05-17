@@ -34,8 +34,9 @@ class PhysicalModel(BaseEstimator, RegressorMixin):
         if self.V is None or self.ux is None:
             raise ValueError('Please run .fit')
 
-        V = X[self.V]
-        ux = X[self.ux]
+
+        V = X[self.V]*1000/3600  # km/h to m/s
+        ux = X[self.ux]*self.g  # Fraction of g to m/s^2
 
         Crr = 0.01 * (1 + V) / 100  # Rolling resistance coefficient
 
@@ -47,4 +48,4 @@ class PhysicalModel(BaseEstimator, RegressorMixin):
         Ft = Fhc + Faero + Fi + Frr
 
         Pt = Ft * V
-        return Pt
+        return Pt / 1000
