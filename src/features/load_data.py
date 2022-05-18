@@ -84,10 +84,6 @@ def load_trip(route, trip, pass_=None, sampling='1s'):
     for i, file in enumerate(glob.glob(os.path.join(data_dir, route, trip_pass))):
         df = pd.read_pickle(file)
 
-        df['pass'] = i
-        df['trip'] = trip
-        df['route'] = route
-
         df = df.set_index(['TS_or_Distance'])
 
         df = resample_df(df, sampling)
@@ -95,6 +91,10 @@ def load_trip(route, trip, pass_=None, sampling='1s'):
         df = adjust_offsets(df)
         df = rename_df(df)
         df = drop_cols(df)
+
+        df['pass'] = i
+        df['trip'] = trip
+        df['route'] = route
 
         df = df[~df.isna().all(axis=1)]
 
