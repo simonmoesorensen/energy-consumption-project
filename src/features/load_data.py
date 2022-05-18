@@ -47,8 +47,6 @@ def rename_df(df):
 
 def resample_df(df, sampling):
     df = df.resample(sampling).median()
-    df = df.reset_index()
-    df = df.set_index(['TS_or_Distance'])
     return df
 
 
@@ -97,6 +95,10 @@ def load_trip(route, trip, pass_=None, sampling='1s'):
         df['route'] = route
 
         df = df[~df.isna().all(axis=1)]
+
+        df['pass'] = i
+        df['trip'] = trip
+        df['route'] = route
 
         passes[i] = df
 

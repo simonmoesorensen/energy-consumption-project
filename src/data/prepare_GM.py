@@ -4,6 +4,8 @@
 
 import sys, os, glob
 import argparse, json
+from pathlib import Path
+
 import psycopg2
 import pandas as pd
 from utils.data_loaders import *
@@ -142,6 +144,7 @@ preload_mapmatch = args.preload_mapmatch
 # Plotting
 plot = args.plot
 only_load_pass_plots = args.only_load_pass_plots
+plot_filename = lambda x: Path(__file__).parent.parent.parent / f'figures/{x}.png'
 
 # Developmentand exploration modes
 dev_mode = args.dev_mode
@@ -438,11 +441,11 @@ for trip in trips_thisroute:
         # Remove outliers
         gps_mapmatched = gps_mapmatched[gps_mapmatched["label"].isin(keep_labels)]
         gps_mapmatched.reset_index(drop=True, inplace=True)
-        # ax = plt.scatter(gps_mapmatched["lon_map"], gps_mapmatched["lat_map"], s=5)
-        # fig.suptitle("GM trip {0}: Removed outliers".format(trip))
-        # fig = ax.get_figure()
-        # fig.savefig(plot_filename.replace(".png", "_removed_outliers.png"))
-        # print("Wrote to: ", plot_filename)
+        ax = plt.scatter(gps_mapmatched["lon_map"], gps_mapmatched["lat_map"], s=5)
+        fig.suptitle("GM trip {0}: Removed outliers".format(trip))
+        fig = ax.get_figure()
+        fig.savefig(plot_filename("_removed_outliers"))
+        print("Wrote to: ", plot_filename("_removed_outliers"))
 
         # Plot
         # plot_geolocation(gps_mapmatched['lon_map'], gps_mapmatched['lat_map'], name= map_filename,out_dir = out_dir_plots, plot_firstlast = 10, do_open = False)
